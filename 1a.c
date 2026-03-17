@@ -19,7 +19,6 @@ int main() {
         scanf("%d", &p[i].BT);
     }
 
-    // Sort by Arrival Time
     for(int i = 0; i < n-1; i++) {
         for(int j = 0; j < n-i-1; j++) {
             if(p[j].AT > p[j+1].AT) {
@@ -92,8 +91,7 @@ int main() {
     while (completed != n) {
         int idx = -1;
         int minBT = 1e9;
-
-        // Find process with shortest burst time among arrived processes
+        
         for (int i = 0; i < n; i++) {
             if (p[i].at <= time && !isCompleted[i]) {
                 if (p[i].bt < minBT) {
@@ -115,7 +113,7 @@ int main() {
             isCompleted[idx] = 1;
             completed++;
         } else {
-            time++; // If no process has arrived yet, move time forward
+            time++;
         }
     }
 
