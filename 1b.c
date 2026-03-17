@@ -17,7 +17,7 @@ int main() {
         printf("Burst Time of P%d: ", p[i].id);
         scanf("%d", &p[i].bt);
         p[i].remaining = p[i].bt;
-        p[i].rt = -1; // response time marker
+        p[i].rt = -1;
     }
 
     int completed = 0, time = 0;
@@ -27,7 +27,6 @@ int main() {
         int idx = -1;
         int minRemaining = 1e9;
 
-        // Find process with shortest remaining time among arrived processes
         for (int i = 0; i < n; i++) {
             if (p[i].at <= time && p[i].remaining > 0) {
                 if (p[i].remaining < minRemaining) {
@@ -38,7 +37,6 @@ int main() {
         }
 
         if (idx != -1) {
-            // First time this process is scheduled → record response time
             if (p[idx].rt == -1) {
                 p[idx].rt = time - p[idx].at;
                 sumRT += p[idx].rt;
@@ -57,7 +55,7 @@ int main() {
                 completed++;
             }
         } else {
-            time++; // If no process has arrived yet, move time forward
+            time++;
         }
     }
 
