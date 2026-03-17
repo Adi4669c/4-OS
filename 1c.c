@@ -1,15 +1,15 @@
 #include <stdio.h>
 
 struct Process {
-    int pid;        // Process ID
-    int bt;         // Burst Time
-    int at;         // Arrival Time
-    int pr;         // Priority
-    int ct;         // Completion Time
-    int tat;        // Turnaround Time
-    int wt;         // Waiting Time
-    int rt;         // Remaining Time (for preemptive)
-    int finished;   // Flag
+    int pid;        
+    int bt; 
+    int at;    
+    int pr;       
+    int ct;    
+    int tat;     
+    int wt;    
+    int rt;    
+    int finished;
 };
 
 struct Gantt {
@@ -18,11 +18,11 @@ struct Gantt {
     int end;
 };
 
-// Function to print Gantt Chart
+
 void print_gantt_chart(struct Gantt g[], int count) {
     printf("\n--- Gantt Chart ---\n");
 
-    // Top bar
+
     printf(" ");
     for (int i = 0; i < count; i++) {
         for (int j = g[i].start; j < g[i].end; j++) printf("--");
@@ -30,7 +30,7 @@ void print_gantt_chart(struct Gantt g[], int count) {
     }
     printf("\n|");
 
-    // Process IDs
+
     for (int i = 0; i < count; i++) {
         int len = g[i].end - g[i].start;
         for (int j = 0; j < len - 1; j++) printf(" ");
@@ -40,14 +40,14 @@ void print_gantt_chart(struct Gantt g[], int count) {
     }
     printf("\n ");
 
-    // Bottom bar
+
     for (int i = 0; i < count; i++) {
         for (int j = g[i].start; j < g[i].end; j++) printf("--");
         printf(" ");
     }
     printf("\n");
 
-    // Timeline
+
     printf("%d", g[0].start);
     for (int i = 0; i < count; i++) {
         int len = g[i].end - g[i].start;
@@ -57,7 +57,6 @@ void print_gantt_chart(struct Gantt g[], int count) {
     printf("\n");
 }
 
-// Non-preemptive Priority Scheduling
 void priority_non_preemptive(struct Process p[], int n) {
     int time = 0, completed = 0;
     struct Gantt g[100];
@@ -102,7 +101,6 @@ void priority_non_preemptive(struct Process p[], int n) {
     print_gantt_chart(g, gcount);
 }
 
-// Preemptive Priority Scheduling
 void priority_preemptive(struct Process p[], int n) {
     int time = 0, completed = 0;
     struct Gantt g[100];
@@ -176,7 +174,6 @@ int main() {
         p[i].finished = 0;
     }
 
-    // Copy array for separate simulations
     struct Process p1[n], p2[n];
     for (int i = 0; i < n; i++) {
         p1[i] = p[i];
