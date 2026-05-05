@@ -1,47 +1,141 @@
 #include <stdio.h>
+#include <stdbool.h>
 
-int main() {
-    int p=3,r=3;
-    int alloc[3][3]={{0,1,0},{2,0,0},{3,0,2}};
-    int max[3][3]={{7,5,3},{3,2,2},{9,0,2}};
-    int avail[3]={3,3,2};
+bool isSafe(int n, int m, int alloc[n][m], int need[n][m], int avail[m], int safeSeq[]) {
+    int work[m];
+    bool finish[n];
 
-    int need[3][3],finish[3]={0},safe[3],k=0;
+    for (int i = 0; i < m; i++)
+        work[i] = avail[i];
 
-    printf("Allocation Matrix:\n");
-    for(int i=0;i<p;i++){
-        for(int j=0;j<r;j++) printf("%d ",alloc[i][j]);
-        printf("\n");
-    }
+    for (int i = 0; i < n; i++)
+        finish[i] = false;
 
-    printf("Max Matrix:\n");
-    for(int i=0;i<p;i++){
-        for(int j=0;j<r;j++) printf("%d ",max[i][j]);
-        printf("\n");
-    }
+    int count = 0;
 
-    for(int i=0;i<p;i++)
-        for(int j=0;j<r;j++)
-            need[i][j]=max[i][j]-alloc[i][j];
+    while (count < n) {
+        bool found = false;
 
-    for(int c=0;c<p;c++)
-        for(int i=0;i<p;i++)
-            if(!finish[i]){
-                int flag=1;
-                for(int j=0;j<r;j++)
-                    if(need[i][j]>avail[j]) flag=0;
+        for (int i = 0; i < n; i++) {
+            if (!finish[i]) {
+                int j;
+                for (j = 0; j < m; j++) {
+                    if (need[i][j] > work[j])
+                        break;
+                }
 
-                if(flag){
-                    for(int j=0;j<r;j++)
-                        avail[j]+=alloc[i][j];
-                    safe[k++]=i;
-                    finish[i]=1;
+                if (j == m) {
+                    for (int k = 0; k < m; k++)
+                        work[k] += alloc[i][k];
+
+                    safeSeq[count++] = i;
+                    finish[i] = true;
+                    found = true;
                 }
             }
+        }
 
-    if(k==p){
+        if (!found)
+            return false;
+    }
+
+    return true;
+}
+
+bool requestResources(int n, int m, int alloc[n][m], int max[n][m], int need[n][m], int avail[m], int process, int request[]) {
+
+    for (int i = 0; i < m; i++) {
+        if (request[i] > need[process][i]) {
+            printf("Error: Process has exceeded its maximum claim.\n");
+            return false;
+        }
+    }
+
+    for (int i = 0; i < m; i++) {
+        if (request[i] > avail[i]) {
+            printf("Resources not available. Process must wait.\n");
+            return false;
+        }
+    }
+
+    for (int i = 0; i < m; i++) {
+        avail[i] -= request[i];
+        alloc[process][i] += request[i];
+        need[process][i] -= request[i];
+    }
+
+    int safeSeq[n];
+
+    if (isSafe(n, m, alloc, need, avail, safeSeq)) {
+        printf("Request can be granted. System remains in safe state.\n");
         printf("Safe sequence: ");
-        for(int i=0;i<p;i++) printf("P%d ",safe[i]);
-    } else
-        printf("Deadlock possible");
+        for (int i = 0; i < n - 1; i++)
+            printf("P%d -> ", safeSeq[i]);
+        printf("P%d\n", safeSeq[n - 1]);
+
+        return true;
+    } else {
+        for (int i = 0; i < m; i++) {
+            avail[i] += request[i];
+            alloc[process][i] -= request[i];
+            need[process][i] += request[i];
+        }
+
+        printf("Request cannot be granted. System would be unsafe.\n");
+        return false;
+    }
+}
+
+int main() {
+    int n, m;
+
+    printf("Enter number of processes: ");
+    scanf("%d", &n);
+    printf("Enter number of resources: ");
+    scanf("%d", &m);
+
+    int alloc[n][m], max[n][m], avail[m], need[n][m];
+
+    printf("Enter Allocation Matrix:\n");
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < m; j++)
+            scanf("%d", &alloc[i][j]);
+
+    printf("Enter Maximum Demand Matrix:\n");
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < m; j++)
+            scanf("%d", &max[i][j]);
+
+    printf("Enter Available Resources:\n");
+    for (int i = 0; i < m; i++)
+        scanf("%d", &avail[i]);
+
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < m; j++)
+            need[i][j] = max[i][j] - alloc[i][j];
+
+    int safeSeq[n];
+
+    if (isSafe(n, m, alloc, need, avail, safeSeq)) {
+        printf("\nSystem is in a safe state.\n");
+        printf("Safe sequence: ");
+        for (int i = 0; i < n - 1; i++)
+            printf("P%d -> ", safeSeq[i]);
+        printf("P%d\n", safeSeq[n - 1]);
+    } else {
+        printf("\nSystem is NOT in a safe state.\n");
+    }
+
+    int process;
+    printf("\nEnter process number making request: ");
+    scanf("%d", &process);
+
+    int request[m];
+    printf("Enter request vector:\n");
+    for (int i = 0; i < m; i++)
+        scanf("%d", &request[i]);
+
+    requestResources(n, m, alloc, max, need, avail, process, request);
+
+    return 0;
 }
