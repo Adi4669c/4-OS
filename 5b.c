@@ -1,52 +1,67 @@
 #include <stdio.h>
+#include <stdbool.h>
 
 int main() {
-    int p=3,r=3;
-    int alloc[3][3]={{0,1,0},{2,0,0},{3,0,2}};
-    int req[3][3]={{0,0,0},{2,0,2},{0,0,1}};
-    int avail[3]={0, 0, 0};
+    int n, m;
 
-    int finish[3]={0};
+    printf("Enter number of processes: ");
+    scanf("%d", &n);
+    printf("Enter number of resource types: ");
+    scanf("%d", &m);
 
-    printf("Allocation Matrix:\n");
-    for(int i=0;i<p;i++){
-        for(int j=0;j<r;j++) printf("%d ",alloc[i][j]);
-        printf("\n");
+    int alloc[n][m], request[n][m], avail[m];
+    bool finish[n];
+    int deadlocked[n], count = 0;
+
+    printf("\nEnter Allocation Matrix:\n");
+    for (int i = 0; i < n; i++) {
+        finish[i] = false;
+        for (int j = 0; j < m; j++)
+            scanf("%d", &alloc[i][j]);
     }
 
-    printf("Request Matrix:\n");
-    for(int i=0;i<p;i++){
-        for(int j=0;j<r;j++) printf("%d ",req[i][j]);
-        printf("\n");
-    }
+    printf("\nEnter Request Matrix:\n");
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < m; j++)
+            scanf("%d", &request[i][j]);
 
-    for(int i=0;i<p;i++){
-        int zero=1;
-        for(int j=0;j<r;j++)
-            if(alloc[i][j]!=0) zero=0;
-        if(zero) finish[i]=1;
-    }
+    printf("\nEnter Available Resources:\n");
+    for (int i = 0; i < m; i++)
+        scanf("%d", &avail[i]);
 
-    for(int k=0;k<p;k++)
-        for(int i=0;i<p;i++)
-            if(!finish[i]){
-                int flag=1;
-                for(int j=0;j<r;j++)
-                    if(req[i][j]>avail[j]) flag=0;
+    for (int k = 0; k < n; k++) {
+        for (int i = 0; i < n; i++) {
+            if (!finish[i]) {
+                bool canBeDone = true;
+                for (int j = 0; j < m; j++) {
+                    if (request[i][j] > avail[j]) {
+                        canBeDone = false;
+                        break;
+                    }
+                }
 
-                if(flag){
-                    for(int j=0;j<r;j++)
-                        avail[j]+=alloc[i][j];
-                    finish[i]=1;
+                if (canBeDone) {
+                    for (int j = 0; j < m; j++)
+                        avail[j] += alloc[i][j];
+                    finish[i] = true;
                 }
             }
-
-    int dead=0;
-    for(int i=0;i<p;i++)
-        if(!finish[i]){
-            printf("Process P%d is in deadlock\n",i);
-            dead=1;
         }
+    }
+    for (int i = 0; i < n; i++) {
+        if (!finish[i]) {
+            deadlocked[count++] = i;
+        }
+    }
 
-    if(!dead) printf("No deadlock");
+    if (count > 0) {
+        printf("\nSystem is in DEADLOCK. Deadlocked processes: ");
+        for (int i = 0; i < count; i++)
+            printf("P%d ", deadlocked[i]);
+        printf("\n");
+    } else {
+        printf("\nNo Deadlock Detected!\n");
+    }
+
+    return 0;
 }
